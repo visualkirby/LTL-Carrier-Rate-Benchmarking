@@ -1,0 +1,16 @@
+nmfc_class,density_band,example_commodity
+50.0,over 50 pcf,"Bricks, ceramic tile, flooring"
+55.0,35-50 pcf,"Bagged cement, hardwood flooring"
+60.0,30-35 pcf,"Car parts, steel cable"
+65.0,22.5-30 pcf,"Bottled beverages, books, car accessories"
+70.0,15-22.5 pcf,"Auto engines, packaged food"
+77.5,13.5-15 pcf,"Tires, bathroom fixtures"
+85.0,12-13.5 pcf,"Crated machinery, cast-iron pipe"
+92.5,10.5-12 pcf,"Computers, monitors, assembled furniture"
+100.0,9-10.5 pcf,"Boat covers, car covers, canvas"
+110.0,8-9 pcf,"Cabinets, framed pictures"
+125.0,7-8 pcf,Small household appliances
+150.0,6-7 pcf,"Auto sheet metal, bookcases"
+175.0,5-6 pcf,"Clothing, upholstered furniture"
+200.0,4-5 pcf,"Aircraft parts, aluminum tables"
+250.0,3-4 pcf,"Bamboo furniture, mattresses, plasma TVs"

@@ -1,0 +1,6 @@
+weight_break_tier,min_weight_lbs,max_weight_lbs,tier_label
+L5C,0,499,Under 500 lb
+M5C,500,999,500-999 lb
+1M,1000,1999,"1,000-1,999 lb"
+2M,2000,4999,"2,000-4,999 lb"
+5M,5000,999999,"5,000 lb and up"

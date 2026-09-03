@@ -1,0 +1,13 @@
+lane_id,origin_city,origin_state,dest_city,dest_state,distance_miles
+CLT-ATL,Charlotte,NC,Atlanta,GA,245
+CLT-RIC,Charlotte,NC,Richmond,VA,290
+GSO-BNA,Greensboro,NC,Nashville,TN,420
+ATL-MCO,Atlanta,GA,Orlando,FL,440
+CLT-CMH,Charlotte,NC,Columbus,OH,430
+ATL-EWR,Atlanta,GA,Newark,NJ,850
+ORD-CLT,Chicago,IL,Charlotte,NC,750
+DFW-ATL,Dallas,TX,Atlanta,GA,780
+ORD-DFW,Chicago,IL,Dallas,TX,925
+LAX-PHX,Los Angeles,CA,Phoenix,AZ,370
+DFW-IAH,Dallas,TX,Houston,TX,240
+JFK-BOS,New York,NY,Boston,MA,215

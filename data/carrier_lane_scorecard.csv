@@ -1,0 +1,50 @@
+carrier_name,lane_id,quotes,median_rate_index,p75_rate_index,excess_linehaul_usd
+Piedmont Freight Line,ATL-EWR,36,88.7,104.6,-6156.0
+Crossroads Freight Co,ATL-EWR,5,92.4,106.5,-148.0
+Palmetto Freight Systems,ATL-EWR,11,108.2,124.6,-599.0
+BlueRidge LTL,ATL-EWR,31,114.1,119.6,731.0
+BlueRidge LTL,ATL-MCO,11,90.8,125.3,-1190.0
+Cardinal Motor Freight,ATL-MCO,36,102.8,119.1,-4927.0
+Crossroads Freight Co,ATL-MCO,9,115.4,123.5,-119.0
+Piedmont Freight Line,CLT-ATL,29,95.1,99.5,-4828.0
+Crossroads Freight Co,CLT-ATL,9,97.8,103.9,-1958.0
+Palmetto Freight Systems,CLT-ATL,29,100.4,109.0,-5783.0
+BlueRidge LTL,CLT-ATL,9,104.0,111.2,912.0
+Cardinal Motor Freight,CLT-ATL,30,113.6,130.8,1776.0
+BlueRidge LTL,CLT-CMH,29,94.7,104.3,-2218.0
+Palmetto Freight Systems,CLT-CMH,35,97.0,113.7,-2733.0
+Cardinal Motor Freight,CLT-CMH,27,97.9,112.2,-2218.0
+Crossroads Freight Co,CLT-CMH,26,106.9,127.6,363.0
+Piedmont Freight Line,CLT-RIC,10,78.6,87.3,-2721.0
+Crossroads Freight Co,CLT-RIC,6,108.8,167.0,-197.0
+BlueRidge LTL,CLT-RIC,21,125.6,145.0,2943.0
+Palmetto Freight Systems,DFW-ATL,29,85.4,104.9,-5695.0
+Piedmont Freight Line,DFW-ATL,10,101.8,123.1,-228.0
+BlueRidge LTL,DFW-ATL,32,115.6,137.4,1980.0
+Piedmont Freight Line,DFW-IAH,30,91.3,101.0,-5692.0
+Palmetto Freight Systems,DFW-IAH,11,94.0,112.0,-1384.0
+Cardinal Motor Freight,DFW-IAH,12,97.4,105.0,-304.0
+BlueRidge LTL,DFW-IAH,33,102.7,118.2,597.0
+Crossroads Freight Co,DFW-IAH,24,109.0,121.9,721.0
+Palmetto Freight Systems,GSO-BNA,24,83.8,107.6,-3537.0
+Crossroads Freight Co,GSO-BNA,8,98.2,128.4,-309.0
+Cardinal Motor Freight,GSO-BNA,34,98.7,125.9,-856.0
+Piedmont Freight Line,GSO-BNA,11,102.4,121.9,-596.0
+BlueRidge LTL,GSO-BNA,9,126.4,144.8,448.0
+Piedmont Freight Line,JFK-BOS,5,84.3,93.0,-809.0
+Palmetto Freight Systems,JFK-BOS,10,87.5,111.9,-2216.0
+Cardinal Motor Freight,JFK-BOS,12,100.0,108.2,-1215.0
+BlueRidge LTL,JFK-BOS,27,107.4,117.7,-353.0
+Palmetto Freight Systems,LAX-PHX,12,86.2,93.2,-1910.0
+Cardinal Motor Freight,LAX-PHX,31,94.1,109.8,-2818.0
+BlueRidge LTL,LAX-PHX,6,100.1,136.1,-213.0
+Crossroads Freight Co,LAX-PHX,32,103.7,122.4,-204.0
+Piedmont Freight Line,LAX-PHX,30,104.2,118.2,-1432.0
+Piedmont Freight Line,ORD-CLT,9,83.4,110.3,-1656.0
+Cardinal Motor Freight,ORD-CLT,34,92.9,106.9,-6250.0
+BlueRidge LTL,ORD-CLT,29,107.6,134.9,414.0
+Piedmont Freight Line,ORD-DFW,32,88.3,99.2,-3836.0
+Cardinal Motor Freight,ORD-DFW,33,100.8,110.8,-824.0
+BlueRidge LTL,ORD-DFW,8,102.8,134.3,584.0
+Crossroads Freight Co,ORD-DFW,36,106.9,121.3,-270.0
+Palmetto Freight Systems,ORD-DFW,5,124.2,140.2,353.0

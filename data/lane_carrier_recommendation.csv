@@ -1,0 +1,50 @@
+lane_id,carrier_name,quotes,median_rate_index,p75_rate_index,excess_linehaul_usd,price_rank,recommendation,thin_data
+ATL-EWR,Piedmont Freight Line,36,88.7,104.6,-6156.0,1,primary,false
+ATL-EWR,Palmetto Freight Systems,11,108.2,124.6,-599.0,2,backup,false
+ATL-EWR,BlueRidge LTL,31,114.1,119.6,731.0,3,,false
+ATL-EWR,Crossroads Freight Co,5,92.4,106.5,-148.0,,,true
+ATL-MCO,BlueRidge LTL,11,90.8,125.3,-1190.0,1,primary,false
+ATL-MCO,Cardinal Motor Freight,36,102.8,119.1,-4927.0,2,backup,false
+ATL-MCO,Crossroads Freight Co,9,115.4,123.5,-119.0,3,,false
+CLT-ATL,Piedmont Freight Line,29,95.1,99.5,-4828.0,1,primary,false
+CLT-ATL,Crossroads Freight Co,9,97.8,103.9,-1958.0,2,backup,false
+CLT-ATL,Palmetto Freight Systems,29,100.4,109.0,-5783.0,3,,false
+CLT-ATL,BlueRidge LTL,9,104.0,111.2,912.0,4,,false
+CLT-ATL,Cardinal Motor Freight,30,113.6,130.8,1776.0,5,,false
+CLT-CMH,BlueRidge LTL,29,94.7,104.3,-2218.0,1,primary,false
+CLT-CMH,Palmetto Freight Systems,35,97.0,113.7,-2733.0,2,backup,false
+CLT-CMH,Cardinal Motor Freight,27,97.9,112.2,-2218.0,3,,false
+CLT-CMH,Crossroads Freight Co,26,106.9,127.6,363.0,4,,false
+CLT-RIC,Piedmont Freight Line,10,78.6,87.3,-2721.0,1,primary,false
+CLT-RIC,BlueRidge LTL,21,125.6,145.0,2943.0,2,backup,false
+CLT-RIC,Crossroads Freight Co,6,108.8,167.0,-197.0,,,true
+DFW-ATL,Palmetto Freight Systems,29,85.4,104.9,-5695.0,1,primary,false
+DFW-ATL,Piedmont Freight Line,10,101.8,123.1,-228.0,2,backup,false
+DFW-ATL,BlueRidge LTL,32,115.6,137.4,1980.0,3,,false
+DFW-IAH,Piedmont Freight Line,30,91.3,101.0,-5692.0,1,primary,false
+DFW-IAH,Palmetto Freight Systems,11,94.0,112.0,-1384.0,2,backup,false
+DFW-IAH,Cardinal Motor Freight,12,97.4,105.0,-304.0,3,,false
+DFW-IAH,BlueRidge LTL,33,102.7,118.2,597.0,4,,false
+DFW-IAH,Crossroads Freight Co,24,109.0,121.9,721.0,5,,false
+GSO-BNA,Palmetto Freight Systems,24,83.8,107.6,-3537.0,1,primary,false
+GSO-BNA,Crossroads Freight Co,8,98.2,128.4,-309.0,2,backup,false
+GSO-BNA,Cardinal Motor Freight,34,98.7,125.9,-856.0,3,,false
+GSO-BNA,Piedmont Freight Line,11,102.4,121.9,-596.0,4,,false
+GSO-BNA,BlueRidge LTL,9,126.4,144.8,448.0,5,,false
+JFK-BOS,Palmetto Freight Systems,10,87.5,111.9,-2216.0,1,primary,false
+JFK-BOS,Cardinal Motor Freight,12,100.0,108.2,-1215.0,2,backup,false
+JFK-BOS,BlueRidge LTL,27,107.4,117.7,-353.0,3,,false
+JFK-BOS,Piedmont Freight Line,5,84.3,93.0,-809.0,,,true
+LAX-PHX,Palmetto Freight Systems,12,86.2,93.2,-1910.0,1,primary,false
+LAX-PHX,Cardinal Motor Freight,31,94.1,109.8,-2818.0,2,backup,false
+LAX-PHX,Crossroads Freight Co,32,103.7,122.4,-204.0,3,,false
+LAX-PHX,Piedmont Freight Line,30,104.2,118.2,-1432.0,4,,false
+LAX-PHX,BlueRidge LTL,6,100.1,136.1,-213.0,,,true
+ORD-CLT,Piedmont Freight Line,9,83.4,110.3,-1656.0,1,primary,false
+ORD-CLT,Cardinal Motor Freight,34,92.9,106.9,-6250.0,2,backup,false
+ORD-CLT,BlueRidge LTL,29,107.6,134.9,414.0,3,,false
+ORD-DFW,Piedmont Freight Line,32,88.3,99.2,-3836.0,1,primary,false
+ORD-DFW,Cardinal Motor Freight,33,100.8,110.8,-824.0,2,backup,false
+ORD-DFW,BlueRidge LTL,8,102.8,134.3,584.0,3,,false
+ORD-DFW,Crossroads Freight Co,36,106.9,121.3,-270.0,4,,false
+ORD-DFW,Palmetto Freight Systems,5,124.2,140.2,353.0,,,true
