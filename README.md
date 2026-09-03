@@ -56,9 +56,11 @@ The full BigQuery pipeline, seven queries from raw quotes to routing recommendat
 
 ### 4️⃣ Dataset
 
-Star schema, 1,024 rows in `data/`: `fact_shipments` plus four dimension tables (`dim_lanes`, `dim_carriers`, `dim_nmfc_classes`, `dim_weight_breaks`), and a denormalized `ltl_shipment_quotes` for the Excel side. 12 US lanes from 215 to 925 miles, 5 carriers, quotes across January to December 2025. `generate_dataset.py` builds all of it.
+Star schema, 1,024 rows in `data/`: `fact_shipments` plus four dimension tables (`dim_lanes`, `dim_carriers`, `dim_nmfc_classes`, `dim_weight_breaks`), and a denormalized `ltl_shipment_quotes` for the Excel side. 12 US lanes from 215 to 925 miles, 5 carriers, quotes across January to December 2025.
 
-[![Dataset Generator](https://img.shields.io/badge/🧱_Dataset_Generator-C8A7F0)](./generate_dataset.py)
+`ltl_dataset_generation.ipynb` is the narrated build with every rate assumption sourced; `generate_dataset.py` is the same logic as a plain script. Both write identical files.
+
+[![Dataset Notebook](https://img.shields.io/badge/🧱_Dataset_Notebook-C8A7F0)](./ltl_dataset_generation.ipynb)
 
 ### 5️⃣ LTL Domain Reference
 
@@ -138,7 +140,8 @@ LTL-Carrier-Rate-Benchmarking/
 ├── Findings_Memo.md              findings and routing actions
 ├── analysis_runbook.md           BigQuery + Excel build walkthrough
 ├── LTL_Domain_Mechanics.md       freight class, density, weight breaks, accessorials
-├── generate_dataset.py           synthetic star-schema generator
+├── ltl_dataset_generation.ipynb  narrated synthetic dataset build
+├── generate_dataset.py           the same logic as a script
 ├── LTL_Rate_Benchmarking.xlsx    Power Query + Power Pivot workbook
 ├── queries/                      the 7-query BigQuery chain
 ├── data/                         5 source tables + 5 analysis outputs (CSV)
