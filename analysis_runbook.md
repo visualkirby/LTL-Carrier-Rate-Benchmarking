@@ -4,11 +4,10 @@ Full sequence from raw data to the first benchmark and scored-quotes tables, in
 BigQuery and Excel. Work through it top to bottom; skip a phase whose checks
 already pass.
 
-This runbook builds the plain lane-band benchmark and a working `scored_quotes`
-flag. The final method refines that into a leave-one-out benchmark and a rate
-index, and adds the carrier scorecards and the routing recommendation. That full
-chain is the seven files in `queries/`; the methodology decisions behind it are
-in the README.
+This runbook walks the full seven-query chain: the plain lane-band benchmark and
+a working `scored_quotes` flag first, then the leave-one-out refinement, the rate
+index, the carrier scorecards, and the routing recommendation. The methodology
+decisions behind each step are in the README.
 
 Business question: when a small shipper gets an LTL quote, how does it know whether
 that rate is competitive for the lane and freight class?
@@ -303,12 +302,218 @@ to TRUE), or build a carrier summary table. Should match the Phase 3 carrier che
 
 ---
 
+## Phase 5 - Section 3: leave-one-out benchmark (SQL)
+
+A plain median lets a carrier that dominates a lane set the benchmark it is then
+measured against. The leave-one-out (LOO) benchmark scores each carrier against the
+median of the *other* carriers in that lane-band cell instead.
+
+```sql
+-- 5.1 Leave-one-out benchmark per carrier
+CREATE OR REPLACE TABLE ltl_benchmarking.loo_benchmarks AS
+WITH cell_carriers AS (
+  SELECT DISTINCT lane_id, class_band, carrier_name
+  FROM ltl_benchmarking.v_shipments_banded
+)
+SELECT
+  cc.lane_id,
+  cc.class_band,
+  cc.carrier_name,
+  COUNT(*) AS other_quotes,
+  ROUND(APPROX_QUANTILES(s.base_cwt_rate, 100)[OFFSET(50)], 2) AS benchmark_loo
+FROM cell_carriers cc
+JOIN ltl_benchmarking.v_shipments_banded s
+  ON s.lane_id = cc.lane_id
+  AND s.class_band = cc.class_band
+  AND s.carrier_name != cc.carrier_name
+GROUP BY 1, 2, 3;
+
+-- 5.2 Score every quote against its LOO benchmark
+CREATE OR REPLACE TABLE ltl_benchmarking.scored_quotes_loo AS
+SELECT
+  s.shipment_id, s.quote_date, s.lane_id, s.carrier_name, s.nmfc_class,
+  s.class_band, s.weight_lbs, s.base_cwt_rate,
+  l.benchmark_loo, l.other_quotes,
+  ROUND(s.base_cwt_rate / l.benchmark_loo * 100, 1) AS rate_index_loo
+FROM ltl_benchmarking.v_shipments_banded s
+JOIN ltl_benchmarking.loo_benchmarks l USING (lane_id, class_band, carrier_name);
+```
+
+### Check
+
+```sql
+SELECT COUNT(*) AS scored_quotes FROM ltl_benchmarking.scored_quotes_loo;
+
+-- rows dropped for having no peer carrier in their lane-band cell
+SELECT COUNT(*) AS dropped
+FROM ltl_benchmarking.v_shipments_banded s
+LEFT JOIN ltl_benchmarking.scored_quotes_loo l USING (shipment_id)
+WHERE l.shipment_id IS NULL;
+```
+
+7 of 1,024 quotes drop for having no peer carrier in their cell. `rate_index_loo`
+runs a little wider than the plain `rate_index` from Phase 3, since a carrier is no
+longer partly benchmarked against itself.
+
+---
+
+## Phase 6 - Section 4: carrier scorecards and routing recommendation (SQL)
+
+Roll the LOO-scored quotes up two ways: by carrier-lane (where a specific carrier
+stands on a specific lane, and what that cost in dollars) and by carrier overall
+(where it stands across every lane it serves). Rank each lane's carriers by price
+and label the cheapest the routing recommendation.
+
+```sql
+-- 6.1 Carrier-lane scorecard
+CREATE OR REPLACE TABLE ltl_benchmarking.carrier_lane_scorecard AS
+SELECT
+  carrier_name,
+  lane_id,
+  COUNT(*) AS quotes,
+  ROUND(APPROX_QUANTILES(rate_index_loo, 100)[OFFSET(50)], 1) AS median_rate_index,
+  ROUND(APPROX_QUANTILES(rate_index_loo, 100)[OFFSET(75)], 1) AS p75_rate_index,
+  ROUND(SUM((base_cwt_rate - benchmark_loo) * weight_lbs / 100), 0) AS excess_linehaul_usd
+FROM ltl_benchmarking.scored_quotes_loo
+GROUP BY 1, 2;
+
+-- 6.2 Carrier scorecard, across every lane served
+CREATE OR REPLACE TABLE ltl_benchmarking.carrier_scorecard AS
+SELECT
+  carrier_name,
+  COUNT(DISTINCT lane_id) AS lanes_served,
+  COUNT(*) AS quotes,
+  ROUND(APPROX_QUANTILES(rate_index_loo, 100)[OFFSET(50)], 1) AS median_rate_index,
+  ROUND(APPROX_QUANTILES(rate_index_loo, 100)[OFFSET(75)], 1)
+    - ROUND(APPROX_QUANTILES(rate_index_loo, 100)[OFFSET(25)], 1) AS rate_index_iqr,
+  ROUND(COUNTIF(rate_index_loo > 110) / COUNT(*) * 100, 1) AS pct_over_110
+FROM ltl_benchmarking.scored_quotes_loo
+GROUP BY 1
+ORDER BY median_rate_index;
+
+-- 6.3 Routing recommendation
+CREATE OR REPLACE TABLE ltl_benchmarking.lane_carrier_recommendation AS
+WITH qualified AS (
+  SELECT
+    lane_id,
+    carrier_name,
+    ROW_NUMBER() OVER (PARTITION BY lane_id ORDER BY median_rate_index) AS price_rank
+  FROM ltl_benchmarking.carrier_lane_scorecard
+  WHERE quotes >= 8
+)
+SELECT
+  s.lane_id, s.carrier_name, s.quotes, s.median_rate_index, s.p75_rate_index,
+  s.excess_linehaul_usd, q.price_rank,
+  CASE q.price_rank WHEN 1 THEN 'primary' WHEN 2 THEN 'backup' ELSE NULL END AS recommendation,
+  s.quotes < 8 AS thin_data
+FROM ltl_benchmarking.carrier_lane_scorecard s
+LEFT JOIN qualified q USING (lane_id, carrier_name);
+```
+
+`excess_linehaul_usd` is the dollar-weighted overpayment: (quoted rate minus its LOO
+benchmark) per hundredweight, times the shipment weight, summed. Negative means the
+carrier came in under market on that carrier-lane. Only carrier-lanes with at least
+8 quotes get ranked; a median on 5 or 6 quotes is not a reliable routing call, so
+thinner ones carry through as `thin_data` with no rank.
+
+### Check
+
+```sql
+SELECT * FROM ltl_benchmarking.carrier_scorecard ORDER BY median_rate_index;
+
+-- carrier-lanes flagged more than one SD above market
+SELECT COUNT(*) AS flagged_pairs, SUM(excess_linehaul_usd) AS total_excess_usd
+FROM ltl_benchmarking.carrier_lane_scorecard
+WHERE median_rate_index > 110;
+```
+
+The carrier scorecard should reproduce the Findings Memo's price-position table:
+BlueRidge LTL and Crossroads Freight Co above 100, Piedmont Freight Line and
+Palmetto Freight Systems around 8% under. The flagged-pairs total should land in
+the same range as the memo's headline number, a bit over $7,700 in excess linehaul.
+Exactly which carrier-lanes clear the 110 line is a judgment call on thin,
+low-volume pairs, not a fixed target.
+
+---
+
+## Phase 7 - Excel: scorecards, routing, and dashboard
+
+Export the four Phase 5-6 result tables the same way as Phase 4.1: BigQuery
+**Save Results > CSV (local file)**, one per table, into the project folder.
+
+- `scored_quotes_loo.csv`
+- `carrier_lane_scorecard.csv`
+- `carrier_scorecard.csv`
+- `lane_carrier_recommendation.csv`
+
+### 7.1 Load the scorecard and routing tables as sheets
+
+`carrier_scorecard.csv` and `lane_carrier_recommendation.csv` land as visible
+tables, not connection-only, since they *are* the Carrier Scorecard and Routing
+sheets:
+
+Data > Get Data > From Text/CSV > `carrier_scorecard.csv` > Transform Data >
+confirm column types > Home > **Close & Load To > Table**, into a new sheet named
+`Carrier Scorecard`.
+
+Repeat for `lane_carrier_recommendation.csv` > **Close & Load To > Table**, into a
+new sheet named `Routing`.
+
+Conditional formatting on `Carrier Scorecard`: 2-color scale on `median_rate_index`,
+green under 100 and red over 100, so a carrier's price position reads at a glance.
+On `Routing`: highlight the `recommendation` column (`primary` / `backup`) and gray
+out rows where `thin_data` is true.
+
+### 7.2 Load the row-level and carrier-lane tables to the Data Model only
+
+`scored_quotes_loo.csv` and `carrier_lane_scorecard.csv` feed the Dashboard's
+slicers and measures. They don't need their own sheet:
+
+Data > Get Data > From Text/CSV > `scored_quotes_loo.csv` > Transform Data > Close &
+Load To > **Only Create Connection, Add to Data Model**. Repeat for
+`carrier_lane_scorecard.csv`.
+
+### 7.3 Dashboard: slicers and KPI strip
+
+Insert > PivotTable > From Data Model, against `scored_quotes_loo`. Insert > Slicer
+for `lane_id` and `carrier_name`, connect both to every pivot on the sheet (Slicer
+**Report Connections**) so one selection drives the whole dashboard.
+
+Power Pivot measures, defined against `scored_quotes_loo`:
+- `Avg Rate Index := AVERAGE(scored_quotes_loo[rate_index_loo])`
+- `Quote Count := COUNTROWS(scored_quotes_loo)`
+- `Pct Over 110 := DIVIDE(CALCULATE(COUNTROWS(scored_quotes_loo), scored_quotes_loo[rate_index_loo] > 110), COUNTROWS(scored_quotes_loo))`
+
+Lay the three out as a KPI strip (card visuals or a small table) at the top of the
+sheet.
+
+### 7.4 Dashboard: charts
+
+- Carrier price-position chart: bar chart of `median_rate_index` by `carrier_name`,
+  from a PivotChart against `carrier_lane_scorecard` or the `Avg Rate Index` measure
+  sliced by carrier.
+- Rate-vs-benchmark chart: `Avg Rate Index` by `class_band`, so a viewer can see
+  which freight-class band carries the most above-market risk.
+
+Both charts respond to the same two slicers as the KPI strip.
+
+### Check
+
+The `Carrier Scorecard` sheet's `median_rate_index` and `pct_over_110` columns
+should match `carrier_scorecard` from the Phase 6 check query exactly. Slice the
+Dashboard down to one carrier and confirm its `Pct Over 110` measure matches that
+carrier's row on the Carrier Scorecard sheet.
+
+---
+
 ## Where this leaves you
 
-- SQL: `v_shipments_banded`, `lane_benchmarks`, `scored_quotes` tables built
-- Excel: quotes + benchmarks loaded, merged, scored, two pivots
+- SQL: the full seven-query chain, `v_shipments_banded` through
+  `lane_carrier_recommendation`
+- Excel: quotes and benchmarks merged and scored (Phase 4), the carrier scorecard
+  and routing tables loaded as sheets, a Dashboard with two slicers, three DAX
+  measures, and two charts (Phase 7)
 
-From here the analysis moves to `queries/03` through `queries/07`: the leave-one-out
-benchmark, the rate index, the carrier and carrier-lane scorecards, and the
-`lane_carrier_recommendation` routing table. The findings memo reads off that last
-table.
+`Findings_Memo.md` is the deliverable that reads off `lane_carrier_recommendation`
+and `carrier_scorecard`: the bottom-line dollar figure, the carrier price
+positions, and the routing actions.
